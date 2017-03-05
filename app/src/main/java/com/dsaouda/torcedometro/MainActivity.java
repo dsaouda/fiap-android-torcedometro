@@ -3,7 +3,6 @@ package com.dsaouda.torcedometro;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -35,14 +34,12 @@ public class MainActivity extends AppCompatActivity
 
         tvTorcedores = (TextView) findViewById(R.id.tvTorcedores);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        FloatingActionButton fabAddTorcedor = (FloatingActionButton) findViewById(R.id.fabAddTorcedor);
+        fabAddTorcedor.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //Chama a tela de cadastro e aguarda um retorno que irá chamar o método onActivityResult
-                startActivityForResult(new Intent(MainActivity.this,
-                                NovoTorcedorActivity.class),
-                        NovoTorcedorActivity.CODE_NOVO_TORCEDOR);
+                startActivityForResult(new Intent(MainActivity.this, NovoTorcedorActivity.class), NovoTorcedorActivity.CODE_NOVO_TORCEDOR);
             }
         });
 
@@ -63,24 +60,27 @@ public class MainActivity extends AppCompatActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_CANCELED) {
-            Toast.makeText(MainActivity.this, "Cancelado",
-                    Toast.LENGTH_LONG).show();
+            Toast.makeText(MainActivity.this, "Cancelado", Toast.LENGTH_LONG).show();
         } else if (requestCode == NovoTorcedorActivity.CODE_NOVO_TORCEDOR) {
             carregaTorcedores();
         }
     }
 
     private void carregaTorcedores() {
-        tvTorcedores.setText("");
+        tvTorcedores.setText("Nenhum torcedor cadastrado");
+
         TorcedorDAO torcedorDAO = new TorcedorDAO(this);
         StringBuilder sb = new StringBuilder();
         List<Torcedor> torcedores = torcedorDAO.getAll();
         for (Torcedor t : torcedores) {
-            sb = new StringBuilder(tvTorcedores.getText());
-            sb.append("\n");
-            sb.append(t.getNome());
+            String nome = t.getNome();
+            sb.append(nome.trim().isEmpty() ? "(Não informado)" : nome);
             sb.append(" - ");
             sb.append(t.getClube().getNome());
+            sb.append("\n");
+        }
+
+        if (sb.length() > 0) {
             tvTorcedores.setText(sb.toString());
         }
     }
